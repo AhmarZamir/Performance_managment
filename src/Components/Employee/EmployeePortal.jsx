@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import EmployeeDashboard from './Dashboard';
 import { teamService, ROLES } from '../../services/dataService';
 import { ArrowLeft, Shield, AlertCircle } from 'lucide-react';
@@ -16,7 +16,6 @@ const EmployeePortal = ({ role }) => {
   }, [role]);
 
   const validateAccess = () => {
-    // Check if the role is valid
     if (!ROLES[role]) {
       setAccessError('Invalid role access');
       return;
@@ -37,14 +36,18 @@ const EmployeePortal = ({ role }) => {
     navigate('/admin');
   };
 
-  // If invalid role, show error
   if (accessError) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="bg-white p-8 rounded-lg border shadow-sm text-center max-w-md">
           <div className="flex justify-center mb-4">
-            <Shield className="h-12 w-12 text-red-500" />
+            <img 
+              src="/optronix_ai_logo.jpg" 
+              alt="Optronix AI Logo"
+              className="h-12 w-12 object-cover rounded"
+            />
           </div>
+          <Shield className="h-12 w-12 text-red-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h2>
           <p className="text-gray-600 mb-6">Invalid role access URL.</p>
           <button
@@ -66,9 +69,12 @@ const EmployeePortal = ({ role }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center mr-3">
-                <Shield className="h-5 w-5 text-white" />
-              </div>
+              {/* Custom Logo */}
+              <img 
+                src="/optronix_ai_logo.jpg" 
+                alt="Optronix AI Logo"
+                className="h-8 w-8 object-cover rounded mr-3"
+              />
               <div>
                 <h1 className="text-xl font-bold text-gray-900">
                   {ROLES[role]} Portal
@@ -81,13 +87,13 @@ const EmployeePortal = ({ role }) => {
               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 border border-blue-200">
                 {ROLES[role]}
               </span>
-              {/* <button */}
-                {/* onClick={handleBackToAdmin} */}
-                {/* className="flex items-center px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50" */}
-              {/* > */}
-                {/* <ArrowLeft className="h-4 w-4 mr-2" /> */}
-                {/* Admin Panel */}
-              {/* </button> */}
+              <button
+                onClick={handleBackToAdmin}
+                className="flex items-center px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Admin Panel
+              </button>
             </div>
           </div>
         </div>
