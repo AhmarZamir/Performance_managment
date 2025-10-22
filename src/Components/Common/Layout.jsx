@@ -19,7 +19,7 @@ const Layout = ({ children }) => {
                 className="h-8 w-8 object-cover rounded"
               />
               <h1 className="ml-2 text-2xl font-bold text-gray-900">
-                Performance Management
+                OptroniX.ai 
               </h1>
             </div>
             

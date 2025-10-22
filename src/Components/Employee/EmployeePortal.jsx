@@ -77,7 +77,7 @@ const EmployeePortal = ({ role }) => {
               />
               <div>
                 <h1 className="text-xl font-bold text-gray-900">
-                  {ROLES[role]} Portal
+                  OptroniX.ai
                 </h1>
                 <p className="text-sm text-gray-500">Secure Performance Evaluation</p>
               </div>
@@ -87,13 +87,13 @@ const EmployeePortal = ({ role }) => {
               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 border border-blue-200">
                 {ROLES[role]}
               </span>
-              <button
-                onClick={handleBackToAdmin}
-                className="flex items-center px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Admin Panel
-              </button>
+              {/* <button */}
+                {/* onClick={handleBackToAdmin} */}
+                {/* className="flex items-center px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50" */}
+              {/* > */}
+                {/* <ArrowLeft className="h-4 w-4 mr-2" /> */}
+                {/* Admin Panel */}
+              {/* </button> */}
             </div>
           </div>
         </div>
