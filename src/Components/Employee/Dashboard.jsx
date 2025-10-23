@@ -1,30 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import PerformanceForm from './PerformanceForm';
-import { teamService, ROLES } from '../../services/dataService';
 import { User, FileText, Award, Clock, Star, Users, Shield } from 'lucide-react';
 
-const EmployeeDashboard = ({ employee, setCurrentEmployee, forcedRole = null }) => {
+const ROLES = {
+  manager: 'Manager',
+  team_lead: 'Team Lead',
+  employee: 'Employee',
+  hr: 'HR Manager',
+  admin: 'Administrator',
+  consultant: 'Consultant',
+  'senior-consultant': 'Senior Consultant',
+  'junior-consultant': 'Junior Consultant'
+};
+
+const EmployeeDashboard = ({ 
+  employee, 
+  setCurrentEmployee, 
+  forcedRole = null,
+  portalEmployees = [],
+  portalTemplates = [] 
+}) => {
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [employees, setEmployees] = useState([]);
+  const [templates, setTemplates] = useState([]);
   const [selectedRole, setSelectedRole] = useState(forcedRole);
 
-  // If forcedRole is provided, use it and don't allow role switching
   const isRoleLocked = !!forcedRole;
 
   useEffect(() => {
-    loadTeamMembers();
-  }, [selectedRole]);
-
-  const loadTeamMembers = () => {
-    try {
-      const data = selectedRole 
-        ? teamService.getTeamMembersByRole(selectedRole)
-        : teamService.getTeamMembers();
-      setEmployees(data);
-    } catch (error) {
-      console.error('Error loading team members:', error);
+    if (portalEmployees.length > 0) {
+      setEmployees(portalEmployees);
     }
-  };
+    if (portalTemplates.length > 0) {
+      setTemplates(portalTemplates);
+    }
+  }, [portalEmployees, portalTemplates]);
 
   // Group employees by role (only if not role-locked)
   const employeesByRole = isRoleLocked ? { [forcedRole]: employees } : 
@@ -78,8 +88,8 @@ const EmployeeDashboard = ({ employee, setCurrentEmployee, forcedRole = null }) 
           </div>
           <div className="bg-white p-6 rounded-lg border text-center">
             <FileText className="h-8 w-8 text-green-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900">{Object.keys(ROLES).length}</div>
-            <div className="text-sm text-gray-600">Role Types</div>
+            <div className="text-2xl font-bold text-gray-900">{templates.length}</div>
+            <div className="text-sm text-gray-600">Form Templates</div>
           </div>
           <div className="bg-white p-6 rounded-lg border text-center">
             <Clock className="h-8 w-8 text-orange-600 mx-auto mb-2" />
@@ -88,8 +98,8 @@ const EmployeeDashboard = ({ employee, setCurrentEmployee, forcedRole = null }) 
           </div>
           <div className="bg-white p-6 rounded-lg border text-center">
             <User className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900">4</div>
-            <div className="text-sm text-gray-600">Active Reviews</div>
+            <div className="text-2xl font-bold text-gray-900">{Object.keys(ROLES).length}</div>
+            <div className="text-sm text-gray-600">Role Types</div>
           </div>
         </div>
       </div>
@@ -99,6 +109,7 @@ const EmployeeDashboard = ({ employee, setCurrentEmployee, forcedRole = null }) 
   // Employee selection view for selected role
   if (selectedRole && !employee) {
     const roleEmployees = employeesByRole[selectedRole] || [];
+    const roleTemplates = templates.filter(t => t.role === selectedRole);
 
     return (
       <div className="space-y-8 animate-fade-in">
@@ -107,7 +118,7 @@ const EmployeeDashboard = ({ employee, setCurrentEmployee, forcedRole = null }) 
             <div>
               <button
                 onClick={() => setSelectedRole(null)}
-                className="flex items-center text-blue-600 hover:text-blue-800 mb-4"
+                className="flex items-center text-blue-600 hover:text-blue-800 mb-4 transition-colors"
               >
                 <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -118,21 +129,22 @@ const EmployeeDashboard = ({ employee, setCurrentEmployee, forcedRole = null }) 
           </div>
         )}
 
-        <div className="bg-white p-6 rounded-lg border">
+        <div className="bg-white p-6 rounded-lg border shadow-sm">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">{ROLES[selectedRole]} Portal</h1>
               <p className="text-gray-600 mt-1">
                 Select your profile to access {ROLES[selectedRole]} performance evaluations
               </p>
+              <div className="flex items-center space-x-4 mt-2">
+                <span className="text-sm text-gray-500">{roleEmployees.length} team members</span>
+                <span className="text-sm text-gray-500">{roleTemplates.length} evaluation forms</span>
+              </div>
             </div>
             <div className="flex items-center space-x-3">
               {isRoleLocked && (
                 <Shield className="h-5 w-5 text-green-600" />
               )}
-              <div className="text-sm text-gray-500">
-                {roleEmployees.length} team members
-              </div>
             </div>
           </div>
 
@@ -141,7 +153,7 @@ const EmployeeDashboard = ({ employee, setCurrentEmployee, forcedRole = null }) 
               <div
                 key={emp.id}
                 onClick={() => setCurrentEmployee(emp)}
-                className="bg-white p-6 rounded-lg border cursor-pointer hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+                className="bg-white p-6 rounded-lg border cursor-pointer hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 group"
               >
                 <div className="flex items-center">
                   <div className="relative">
@@ -159,7 +171,7 @@ const EmployeeDashboard = ({ employee, setCurrentEmployee, forcedRole = null }) 
                     <p className="text-sm text-gray-500">{emp.email}</p>
                     <div className="flex items-center mt-1">
                       <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        {emp.position || ROLES[emp.role]}
+                        {emp.position || ROLES[emp.role] || 'Employee'}
                       </span>
                     </div>
                   </div>
@@ -193,7 +205,7 @@ const EmployeeDashboard = ({ employee, setCurrentEmployee, forcedRole = null }) 
   return (
     <div className="space-y-8 animate-slide-up">
       {/* Enhanced Employee Header */}
-      <div className="bg-white p-8 rounded-lg border relative overflow-hidden">
+      <div className="bg-white p-8 rounded-lg border relative overflow-hidden shadow-sm">
         <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full -translate-y-16 translate-x-16"></div>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-6">
@@ -210,7 +222,7 @@ const EmployeeDashboard = ({ employee, setCurrentEmployee, forcedRole = null }) 
               <p className="text-gray-600 text-lg mt-1">{employee.email}</p>
               <div className="flex items-center space-x-2 mt-3">
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 border border-blue-200">
-                  {employee.position || ROLES[employee.role]}
+                  {employee.position || ROLES[employee.role] || 'Employee'}
                 </span>
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 border border-green-200">
                   Active
@@ -227,7 +239,7 @@ const EmployeeDashboard = ({ employee, setCurrentEmployee, forcedRole = null }) 
           <div className="flex space-x-3">
             <button
               onClick={() => setCurrentEmployee(null)}
-              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             >
               Switch Profile
             </button>
@@ -237,7 +249,7 @@ const EmployeeDashboard = ({ employee, setCurrentEmployee, forcedRole = null }) 
                   setCurrentEmployee(null);
                   setSelectedRole(null);
                 }}
-                className="px-4 py-2 text-blue-600 border border-blue-300 rounded-lg hover:bg-blue-50"
+                className="px-4 py-2 text-blue-600 border border-blue-300 rounded-lg hover:bg-blue-50 transition-colors"
               >
                 Change Role
               </button>
@@ -247,7 +259,7 @@ const EmployeeDashboard = ({ employee, setCurrentEmployee, forcedRole = null }) 
       </div>
 
       {/* Performance Form */}
-      <PerformanceForm employee={employee} />
+      <PerformanceForm employee={employee} roleTemplates={templates} />
     </div>
   );
 };

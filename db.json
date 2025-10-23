@@ -1,0 +1,188 @@
+{
+  "employees": [
+    {
+      "id": 1761214433453,
+      "name": "Tasin",
+      "email": "Tasin@company",
+      "role": "junior-consultant",
+      "department": "Consulting",
+      "position": "Junior Consulting",
+      "join_date": "2025-10-23",
+      "createdAt": "2025-10-23T10:13:53.453Z"
+    },
+    {
+      "id": 1761214859372,
+      "name": "Ahmar Zamir",
+      "email": "ahmar@company",
+      "role": "senior-consultant",
+      "department": "Consulting",
+      "position": "Senior Consultant ",
+      "join_date": "2025-10-08",
+      "createdAt": "2025-10-23T10:20:59.372Z"
+    },
+    {
+      "id": 1761215245933,
+      "name": "abc",
+      "email": "def",
+      "role": "hr",
+      "department": "Technology",
+      "position": "Senior Consultant ",
+      "join_date": "2025-10-23",
+      "createdAt": "2025-10-23T10:27:25.933Z"
+    },
+    {
+      "id": 1761217616685,
+      "name": "abc",
+      "email": "def",
+      "role": "hr",
+      "department": "Technology",
+      "position": "Senior Consultant ",
+      "join_date": "2025-10-23",
+      "createdAt": "2025-10-23T11:06:56.685Z"
+    },
+    {
+      "id": 1761217656341,
+      "name": "den",
+      "email": "den@",
+      "role": "senior-consultant",
+      "department": "IT",
+      "position": "Senior Consultant",
+      "join_date": "2025-10-23",
+      "createdAt": "2025-10-23T11:07:36.341Z"
+    },
+    {
+      "id": 1761218353000,
+      "name": "xyz",
+      "email": "sm",
+      "role": "consultant",
+      "department": "d ",
+      "position": "d,",
+      "join_date": "2025-10-23",
+      "createdAt": "2025-10-23T11:19:13.000Z"
+    },
+    {
+      "id": 1761225830010,
+      "name": "bdjwb",
+      "email": "bjbk",
+      "role": "senior-consultant",
+      "department": "IT",
+      "position": "Sennior Consultant",
+      "join_date": "2025-10-23",
+      "createdAt": "2025-10-23T13:23:50.010Z"
+    },
+    {
+      "id": 1761227984917,
+      "name": "shoaib",
+      "email": "shaoib@company",
+      "role": "manager",
+      "department": "Consulting",
+      "position": "Senior Consultant ",
+      "join_date": "2025-10-23",
+      "createdAt": "2025-10-23T13:59:44.917Z"
+    }
+  ],
+  "submissions": [
+    {
+      "id": "1",
+      "employeeId": 1,
+      "formData": {},
+      "submittedAt": "2024-01-20T10:00:00Z"
+    },
+    {
+      "id": 1761228034290,
+      "employeeName": "shoaib",
+      "employeeEmail": "shaoib@company",
+      "employeeId": 1761227984917,
+      "role": "manager",
+      "templateId": 1761217559807,
+      "formType": "abc",
+      "formData": {
+        "evaluations": [
+          {
+            "criteriaId": "1761217549037",
+            "criteria": "abc",
+            "description": "jnj",
+            "maxMarks": 10,
+            "selfScore": "9",
+            "selfComment": "cooked"
+          },
+          {
+            "criteriaId": "1761217556841",
+            "criteria": "cde",
+            "description": "fgh",
+            "maxMarks": 10,
+            "selfScore": "10",
+            "selfComment": "✅"
+          }
+        ],
+        "totalScore": 19,
+        "maxTotalScore": 20,
+        "submittedAt": "2025-10-23T14:00:34.289Z"
+      },
+      "status": "submitted",
+      "submittedAt": "2025-10-23T14:00:34.290Z"
+    }
+  ],
+  "templates": [
+    {
+      "id": 1761217559807,
+      "name": "abc",
+      "role": "manager",
+      "criteria": [
+        {
+          "criteria": "abc",
+          "description": "jnj",
+          "maxMarks": 10,
+          "id": "1761217549037"
+        },
+        {
+          "criteria": "cde",
+          "description": "fgh",
+          "maxMarks": 10,
+          "id": "1761217556841"
+        }
+      ],
+      "createdAt": "2025-10-23T11:05:59.807Z"
+    },
+    {
+      "id": 1761227766055,
+      "name": "test",
+      "role": "employee",
+      "criteria": [
+        {
+          "criteria": "ethics",
+          "description": "testing ",
+          "maxMarks": 10,
+          "id": "1761227747809"
+        },
+        {
+          "criteria": "test2 ",
+          "description": "testing ",
+          "maxMarks": 10,
+          "id": "1761227761111"
+        }
+      ],
+      "createdAt": "2025-10-23T13:56:06.055Z"
+    },
+    {
+      "id": 1761227916900,
+      "name": "testttttt",
+      "role": "manager",
+      "criteria": [
+        {
+          "criteria": "sk",
+          "description": "kb",
+          "maxMarks": 10,
+          "id": "1761227909577"
+        },
+        {
+          "criteria": "2nd",
+          "description": "ikn",
+          "maxMarks": 10,
+          "id": "1761227914907"
+        }
+      ],
+      "createdAt": "2025-10-23T13:58:36.900Z"
+    }
+  ]
+}

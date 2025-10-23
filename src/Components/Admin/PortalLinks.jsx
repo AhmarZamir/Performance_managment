@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
-import { ROLES } from '../../services/dataService';
 import { Copy, Share2, Shield, Check } from 'lucide-react';
+
+// Define ROLES locally since we're not using dataService anymore
+const ROLES = {
+  manager: 'Manager',
+  team_lead: 'Team Lead',
+  employee: 'Employee',
+  hr: 'HR Manager',
+  admin: 'Administrator'
+};
 
 const PortalLinks = () => {
   const [copiedRole, setCopiedRole] = useState(null);
@@ -58,11 +66,11 @@ const PortalLinks = () => {
                 type="text"
                 value={getPortalUrl(roleKey)}
                 readOnly
-                className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50"
+                className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors"
               />
               <button
                 onClick={() => copyToClipboard(roleKey)}
-                className="flex items-center px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="flex items-center px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               >
                 {copiedRole === roleKey ? (
                   <Check className="h-4 w-4" />

@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import FormTemplates from './FormTemplates';
 import Submissions from './Submissions';
 import TeamManagement from './TeamManagement';
-import { FileText, Users, TrendingUp, Mail , Link } from 'lucide-react';
-import { submissionService, teamService, templateService } from '../../services/dataService';
-
+import PortalLinks from './PortalLinks';
+import { FileText, Users, TrendingUp, Mail, Link } from 'lucide-react';
+import { teamService, templateService, submissionService } from '../../services/supabaseService'
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('team');
   const [stats, setStats] = useState({
@@ -13,41 +13,62 @@ const AdminDashboard = () => {
     submissions: 0,
     averageScore: 0
   });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadStats();
   }, []);
 
-  const loadStats = () => {
-    const teamMembers = teamService.getTeamMembers().length;
-    const templates = Object.keys(templateService.getTemplates()).length;
-    const submissions = submissionService.getSubmissions();
-    const totalScore = submissions.reduce((sum, sub) => sum + (sub.totalScore || 0), 0);
-    const averageScore = submissions.length > 0 ? totalScore / submissions.length : 0;
-    // Add to the tabs array:
-  const tabs = [
-  { id: 'team', name: 'Team Management', icon: Users },
-  { id: 'forms', name: 'Form Templates', icon: FileText },
-  { id: 'submissions', name: 'Submissions', icon: Mail },
-  { id: 'portals', name: 'Portal Links', icon: Link }, // Add this line
-];
+  const loadStats = async () => {
+    try {
+      setLoading(true);
+      
+      // Load all data in parallel
+      const [employees, templates, submissions] = await Promise.all([
+        teamService.getEmployees(), // FIXED: Changed from getTeamMembers() to getEmployees()
+        templateService.getTemplates(),
+        submissionService.getSubmissions()
+      ]);
 
-// Add to the tab content:
-{activeTab === 'portals' && <PortalLinks />}
+      // Calculate average score
+      const totalScore = submissions.reduce((sum, sub) => {
+        const formData = sub.formData || {};
+        const score = formData.totalScore || formData.rating || 0;
+        return sum + score;
+      }, 0);
+      
+      const averageScore = submissions.length > 0 ? totalScore / submissions.length : 0;
 
-    setStats({
-      teamMembers,
-      templates,
-      submissions: submissions.length,
-      averageScore
-    });
+      setStats({
+        teamMembers: employees.length,
+        templates: templates.length,
+        submissions: submissions.length,
+        averageScore: parseFloat(averageScore.toFixed(1))
+      });
+    } catch (error) {
+      console.error('Error loading dashboard stats:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const tabs = [
     { id: 'team', name: 'Team Management', icon: Users },
     { id: 'forms', name: 'Form Templates', icon: FileText },
     { id: 'submissions', name: 'Submissions', icon: Mail },
+    { id: 'portals', name: 'Portal Links', icon: Link }
   ];
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -92,7 +113,7 @@ const AdminDashboard = () => {
             </div>
             <div>
               <p className="text-sm font-medium text-gray-600">Avg. Score</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.averageScore.toFixed(1)}</p>
+              <p className="text-2xl font-bold text-gray-900">{stats.averageScore}</p>
             </div>
           </div>
         </div>
@@ -113,20 +134,20 @@ const AdminDashboard = () => {
       {/* Tabs */}
       <div className="bg-white shadow-sm rounded-lg">
         <div className="border-b">
-          <nav className="flex -mb-px">
+          <nav className="flex -mb-px overflow-x-auto">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`py-4 px-6 text-center border-b-2 font-medium text-sm ${
+                  className={`flex items-center py-4 px-6 text-center border-b-2 font-medium text-sm whitespace-nowrap ${
                     activeTab === tab.id
                       ? 'border-blue-500 text-blue-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                   }`}
                 >
-                  <Icon className="h-5 w-5 mr-2 inline" />
+                  <Icon className="h-5 w-5 mr-2" />
                   {tab.name}
                 </button>
               );
@@ -135,9 +156,10 @@ const AdminDashboard = () => {
         </div>
 
         <div className="p-6">
-          {activeTab === 'team' && <TeamManagement />}
-          {activeTab === 'forms' && <FormTemplates />}
-          {activeTab === 'submissions' && <Submissions />}
+          {activeTab === 'team' && <TeamManagement onDataUpdate={loadStats} />}
+          {activeTab === 'forms' && <FormTemplates onDataUpdate={loadStats} />}
+          {activeTab === 'submissions' && <Submissions onDataUpdate={loadStats} />}
+          {activeTab === 'portals' && <PortalLinks />}
         </div>
       </div>
     </div>
