@@ -227,18 +227,19 @@ const TeamManagement = ({ onDataUpdate }) => {
                 Role
               </label>
               <select
-                value={newEmployee.role}
-                onChange={(e) => setNewEmployee(prev => ({ ...prev, role: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-              >
-                <option value="manager">Manager</option>
-                <option value="team_lead">Team Lead</option>
-                <option value="senior-consultant">Senior Consultant</option>
-                <option value="consultant">Consultant</option>
-                <option value="junior-consultant">Junior Consultant</option>
-                <option value="hr">HR Manager</option>
-                <option value="admin">Administrator</option>
-              </select>
+                 value={newEmployee.role}
+                 onChange={(e) => setNewEmployee(prev => ({ ...prev, role: e.target.value }))}
+                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors">
+                 <option value="principal-consultant">Principal Consultant</option>
+                 <option value="senior-consultant">Senior Consultant</option>
+                 <option value="consultant">Consultant</option>
+                 <option value="senior-bi-developer">Senior BI Developer</option>
+                 <option value="bi-developer">BI Developer</option>
+             </select>
+              
+
+              
+              
             </div>
 
             <div>

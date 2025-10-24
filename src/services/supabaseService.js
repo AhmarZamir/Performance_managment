@@ -1,16 +1,11 @@
 import { createClient } from '@supabase/supabase-js'
 
-// Use environment variables
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-// Log to verify environment variables are loaded (remove in production)
-console.log('Supabase URL:', supabaseUrl ? 'Loaded' : 'Missing')
-console.log('Supabase Key:', supabaseAnonKey ? 'Loaded' : 'Missing')
-
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-// Rest of your service code remains the same...
+// Team/Employee Service
 export const teamService = {
   getEmployees: async () => {
     const { data, error } = await supabase
@@ -65,6 +60,7 @@ export const teamService = {
   }
 }
 
+// Template Service
 export const templateService = {
   getTemplates: async () => {
     const { data, error } = await supabase
@@ -119,6 +115,7 @@ export const templateService = {
   }
 }
 
+// Submission Service - FIXED COLUMN NAMES
 export const submissionService = {
   getSubmissions: async () => {
     const { data, error } = await supabase
@@ -134,9 +131,21 @@ export const submissionService = {
   },
 
   submitForm: async (submissionData) => {
+    // Convert camelCase to snake_case for database columns
+    const submission = {
+      employee_name: submissionData.employeeName,
+      employee_email: submissionData.employeeEmail,
+      employee_id: submissionData.employeeId,
+      role: submissionData.role,
+      template_id: submissionData.templateId,
+      form_type: submissionData.formType,
+      form_data: submissionData.formData,
+      status: submissionData.status || 'submitted'
+    };
+    
     const { data, error } = await supabase
       .from('submissions')
-      .insert([submissionData])
+      .insert([submission])
       .select()
     
     if (error) {

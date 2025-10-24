@@ -1,15 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { teamService, templateService, submissionService } from '../../services/supabaseService'
-import { Download, Eye, Trash2 } from 'lucide-react';
+import { submissionService } from '../../services/supabaseService';
+import { Download, Eye, Trash2, User, Mail, FileText, Calendar } from 'lucide-react';
 
-// Define ROLES locally if not available
 const ROLES = {
-  manager: 'Manager',
-  team_lead: 'Team Lead',
-  employee: 'Employee',
-  hr: 'HR Manager',
-  admin: 'Administrator'
+  'principal-consultant': 'Principal Consultant',
+  'senior-consultant': 'Senior Consultant',
+  'consultant': 'Consultant',
+  'senior-bi-developer': 'Senior BI Developer',
+  'bi-developer': 'BI Developer'
 };
+
+
+
+
+
+
+
+
+
 
 const Submissions = ({ onDataUpdate }) => {
   const [submissions, setSubmissions] = useState([]);
@@ -28,7 +36,7 @@ const Submissions = ({ onDataUpdate }) => {
       setSubmissions(data);
     } catch (error) {
       console.error('Error loading submissions:', error);
-      alert('Error loading submissions. Please check if JSON Server is running on port 3001.');
+      alert('Error loading submissions. Please check if Supabase is connected.');
     } finally {
       setLoading(false);
     }
@@ -54,19 +62,18 @@ const Submissions = ({ onDataUpdate }) => {
       const csvContent = [
         headers.join(','),
         ...dataToExport.map(sub => {
-          const role = sub.role || 'Unknown Role';
-          const formData = sub.formData || {};
+          const formData = sub.form_data || {};
           const totalScore = formData.totalScore || formData.rating || 0;
           const maxScore = formData.maxTotalScore || 100;
           
           return [
-            `"${sub.employeeName || sub.employeeId}"`,
-            `"${sub.employeeEmail || 'N/A'}"`,
-            `"${ROLES[role] || role}"`,
-            `"${sub.formType || 'Performance Review'}"`,
+            `"${sub.employee_name || 'N/A'}"`,
+            `"${sub.employee_email || 'N/A'}"`,
+            `"${ROLES[sub.role] || sub.role}"`,
+            `"${sub.form_type || 'Performance Review'}"`,
             totalScore,
             maxScore,
-            `"${new Date(sub.submittedAt || sub.submissionDate).toLocaleDateString()}"`
+            `"${new Date(sub.submitted_at).toLocaleDateString()}"`
           ].join(',');
         })
       ].join('\n');
@@ -98,7 +105,6 @@ const Submissions = ({ onDataUpdate }) => {
         await loadSubmissions();
         setSelectedSubmission(null);
         
-        // Refresh dashboard stats
         if (onDataUpdate) onDataUpdate();
         
         alert('Submission deleted successfully!');
@@ -178,7 +184,7 @@ const Submissions = ({ onDataUpdate }) => {
       {/* Submission Details Modal */}
       {selectedSubmission && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-bold text-gray-900">Submission Details</h3>
@@ -192,74 +198,154 @@ const Submissions = ({ onDataUpdate }) => {
                 </button>
               </div>
 
+              {/* Employee Information */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <div>
-                  <h4 className="font-semibold text-gray-700 mb-2">Employee Information</h4>
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  <h4 className="font-semibold text-blue-700 mb-3 flex items-center">
+                    <User className="h-5 w-5 mr-2" />
+                    Employee Information
+                  </h4>
                   <div className="space-y-2">
-                    <p><span className="font-medium">Name:</span> {selectedSubmission.employeeName || selectedSubmission.employeeId}</p>
-                    <p><span className="font-medium">Email:</span> {selectedSubmission.employeeEmail || 'N/A'}</p>
-                    <p><span className="font-medium">Form Type:</span> {selectedSubmission.formType || 'Performance Review'}</p>
-                    <p><span className="font-medium">Role:</span> {ROLES[selectedSubmission.role] || selectedSubmission.role || 'Unknown'}</p>
+                    <div className="flex justify-between">
+                      <span className="font-medium text-gray-700">Name:</span>
+                      <span className="text-gray-900">{selectedSubmission.employee_name}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium text-gray-700">Email:</span>
+                      <span className="text-gray-900">{selectedSubmission.employee_email}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium text-gray-700">Employee ID:</span>
+                      <span className="text-gray-900">{selectedSubmission.employee_id}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium text-gray-700">Role:</span>
+                      <span className="text-gray-900">{ROLES[selectedSubmission.role] || selectedSubmission.role}</span>
+                    </div>
                   </div>
                 </div>
-                <div>
-                  <h4 className="font-semibold text-gray-700 mb-2">Evaluation Summary</h4>
+
+                <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                  <h4 className="font-semibold text-green-700 mb-3 flex items-center">
+                    <FileText className="h-5 w-5 mr-2" />
+                    Evaluation Summary
+                  </h4>
                   <div className="space-y-2">
-                    <p><span className="font-medium">Total Score:</span> 
-                      {selectedSubmission.formData?.totalScore || selectedSubmission.formData?.rating || 0}/
-                      {selectedSubmission.formData?.maxTotalScore || 100}
-                    </p>
-                    <p><span className="font-medium">Percentage:</span> 
-                      {(((selectedSubmission.formData?.totalScore || selectedSubmission.formData?.rating || 0) / 
-                        (selectedSubmission.formData?.maxTotalScore || 100)) * 100).toFixed(1)}%
-                    </p>
-                    <p><span className="font-medium">Submitted:</span> 
-                      {new Date(selectedSubmission.submittedAt || selectedSubmission.submissionDate).toLocaleString()}
-                    </p>
+                    <div className="flex justify-between">
+                      <span className="font-medium text-gray-700">Form Type:</span>
+                      <span className="text-gray-900">{selectedSubmission.form_type}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium text-gray-700">Template ID:</span>
+                      <span className="text-gray-900">{selectedSubmission.template_id}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium text-gray-700">Status:</span>
+                      <span className="text-gray-900 capitalize">{selectedSubmission.status}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium text-gray-700">Submitted:</span>
+                      <span className="text-gray-900">{new Date(selectedSubmission.submitted_at).toLocaleString()}</span>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {selectedSubmission.formData?.evaluations && selectedSubmission.formData.evaluations.length > 0 && (
-                <div>
-                  <h4 className="font-semibold text-gray-700 mb-4">Detailed Evaluation</h4>
-                  <div className="space-y-4">
-                    {selectedSubmission.formData.evaluations.map((evalItem, index) => (
-                      <div key={index} className="border rounded-lg p-4">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
-                          <div>
-                            <p className="font-medium text-gray-700">Criteria</p>
-                            <p className="text-gray-900">{evalItem.criteria}</p>
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-700">Score</p>
-                            <p className="text-gray-900">{evalItem.selfScore || evalItem.score}/{evalItem.maxMarks}</p>
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-700">Percentage</p>
-                            <p className="text-gray-900">
-                              {(((evalItem.selfScore || evalItem.score) / evalItem.maxMarks) * 100).toFixed(1)}%
-                            </p>
-                          </div>
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-700 mb-1">Comments</p>
-                          <p className="text-gray-900 bg-gray-50 p-3 rounded">
-                            {evalItem.selfComment || evalItem.comments || 'No comments provided'}
-                          </p>
-                        </div>
+              {/* Score Summary */}
+              {selectedSubmission.form_data && (
+                <div className="mb-6">
+                  <h4 className="font-semibold text-gray-700 mb-4 flex items-center">
+                    <FileText className="h-5 w-5 mr-2" />
+                    Score Summary
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-white p-4 rounded-lg border text-center">
+                      <div className="text-2xl font-bold text-blue-600">
+                        {selectedSubmission.form_data.totalScore || selectedSubmission.form_data.rating || 0}
                       </div>
-                    ))}
+                      <div className="text-sm text-gray-600">Total Score</div>
+                    </div>
+                    <div className="bg-white p-4 rounded-lg border text-center">
+                      <div className="text-2xl font-bold text-green-600">
+                        {selectedSubmission.form_data.maxTotalScore || 100}
+                      </div>
+                      <div className="text-sm text-gray-600">Max Score</div>
+                    </div>
+                    <div className="bg-white p-4 rounded-lg border text-center">
+                      <div className="text-2xl font-bold text-purple-600">
+                        {(((selectedSubmission.form_data.totalScore || selectedSubmission.form_data.rating || 0) / 
+                          (selectedSubmission.form_data.maxTotalScore || 100)) * 100).toFixed(1)}%
+                      </div>
+                      <div className="text-sm text-gray-600">Percentage</div>
+                    </div>
                   </div>
                 </div>
               )}
 
-              {selectedSubmission.formData && !selectedSubmission.formData.evaluations && (
+              {/* Detailed Evaluation Criteria */}
+              {selectedSubmission.form_data?.evaluations && selectedSubmission.form_data.evaluations.length > 0 && (
+                <div className="mb-6">
+                  <h4 className="font-semibold text-gray-700 mb-4">Detailed Evaluation</h4>
+                  <div className="space-y-4">
+                    {selectedSubmission.form_data.evaluations.map((evalItem, index) => {
+                      const score = evalItem.selfScore || evalItem.score || 0;
+                      const maxMarks = evalItem.maxMarks || 1;
+                      const percentage = (score / maxMarks) * 100;
+                      
+                      return (
+                        <div key={index} className="border rounded-lg p-4 bg-white">
+                          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-3">
+                            <div>
+                              <p className="font-medium text-gray-700 text-sm">Criteria</p>
+                              <p className="text-gray-900 font-semibold">{evalItem.criteria}</p>
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-700 text-sm">Description</p>
+                              <p className="text-gray-900">{evalItem.description}</p>
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-700 text-sm">Score</p>
+                              <p className="text-gray-900 font-semibold">
+                                {score}/{maxMarks}
+                              </p>
+                              <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
+                                <div 
+                                  className={`h-2 rounded-full transition-all duration-500 ${
+                                    percentage >= 80 ? 'bg-green-500' :
+                                    percentage >= 60 ? 'bg-blue-500' :
+                                    percentage >= 40 ? 'bg-yellow-500' : 'bg-red-500'
+                                  }`}
+                                  style={{ width: `${Math.min(percentage, 100)}%` }}
+                                ></div>
+                              </div>
+                              <p className="text-xs text-gray-500 mt-1">{percentage.toFixed(1)}%</p>
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-700 text-sm">Max Marks</p>
+                              <p className="text-gray-900">{maxMarks}</p>
+                            </div>
+                          </div>
+                          
+                          <div>
+                            <p className="font-medium text-gray-700 text-sm mb-2">Comments</p>
+                            <p className="text-gray-900 bg-gray-50 p-3 rounded text-sm">
+                              {evalItem.selfComment || evalItem.comments || 'No comments provided'}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Raw Form Data (for debugging) */}
+              {selectedSubmission.form_data && !selectedSubmission.form_data.evaluations && (
                 <div>
                   <h4 className="font-semibold text-gray-700 mb-4">Form Data</h4>
-                  <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="bg-gray-50 p-4 rounded-lg border">
                     <pre className="text-sm text-gray-700 whitespace-pre-wrap">
-                      {JSON.stringify(selectedSubmission.formData, null, 2)}
+                      {JSON.stringify(selectedSubmission.form_data, null, 2)}
                     </pre>
                   </div>
                 </div>
@@ -289,9 +375,7 @@ const Submissions = ({ onDataUpdate }) => {
         <div className="bg-white p-12 rounded-lg border text-center shadow-sm">
           <div className="flex justify-center mb-4">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
-              <svg className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
+              <FileText className="h-8 w-8 text-gray-400" />
             </div>
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -343,26 +427,33 @@ const Submissions = ({ onDataUpdate }) => {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {displaySubmissions.map((submission) => {
-                  const role = submission.role || 'Unknown Role';
-                  const formData = submission.formData || {};
+                  const formData = submission.form_data || {};
                   const totalScore = formData.totalScore || formData.rating || 0;
                   const maxScore = formData.maxTotalScore || 100;
                   
                   return (
                     <tr key={submission.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        {submission.employeeName || submission.employeeId}
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <User className="h-4 w-4 text-gray-400 mr-2" />
+                          <span className="text-sm font-medium text-gray-900">
+                            {submission.employee_name}
+                          </span>
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {submission.employeeEmail || 'N/A'}
+                        <div className="flex items-center">
+                          <Mail className="h-4 w-4 text-gray-400 mr-2" />
+                          {submission.employee_email}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                          {ROLES[role] || role}
+                          {ROLES[submission.role] || submission.role}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {submission.formType || 'Performance Review'}
+                        {submission.form_type}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         <span className="font-semibold">
@@ -373,7 +464,10 @@ const Submissions = ({ onDataUpdate }) => {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(submission.submittedAt || submission.submissionDate).toLocaleDateString()}
+                        <div className="flex items-center">
+                          <Calendar className="h-4 w-4 text-gray-400 mr-2" />
+                          {new Date(submission.submitted_at).toLocaleDateString()}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                         <button

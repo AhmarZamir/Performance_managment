@@ -3,12 +3,17 @@ import { Copy, Share2, Shield, Check } from 'lucide-react';
 
 // Define ROLES locally since we're not using dataService anymore
 const ROLES = {
-  manager: 'Manager',
-  team_lead: 'Team Lead',
-  employee: 'Employee',
-  hr: 'HR Manager',
-  admin: 'Administrator'
+  'principal-consultant': 'Principal Consultant',
+  'senior-consultant': 'Senior Consultant',
+  'consultant': 'Consultant',
+  'senior-bi-developer': 'Senior BI Developer',
+  'bi-developer': 'BI Developer'
 };
+
+
+
+
+
 
 const PortalLinks = () => {
   const [copiedRole, setCopiedRole] = useState(null);

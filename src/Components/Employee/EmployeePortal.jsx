@@ -5,14 +5,11 @@ import { teamService, templateService, submissionService } from '../../services/
 import { ArrowLeft, Shield, AlertCircle, Users } from 'lucide-react';
 
 const ROLES = {
-  manager: 'Manager',
-  team_lead: 'Team Lead', 
-  employee: 'Employee',
-  hr: 'HR Manager',
-  admin: 'Administrator',
-  consultant: 'Consultant',
+  'principal-consultant': 'Principal Consultant',
   'senior-consultant': 'Senior Consultant',
-  'junior-consultant': 'Junior Consultant'
+  'consultant': 'Consultant',
+  'senior-bi-developer': 'Senior BI Developer',
+  'bi-developer': 'BI Developer'
 };
 
 const EmployeePortal = ({ role }) => {

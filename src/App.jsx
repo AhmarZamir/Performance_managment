@@ -37,14 +37,11 @@ function App() {
         } />
 
         {/* Employee Portal Routes - Each role has its own endpoint */}
-        <Route path="/employee/manager" element={<EmployeePortal role="manager" />} />
-        <Route path="/employee/team_lead" element={<EmployeePortal role="team_lead" />} />
-        <Route path="/employee/employee" element={<EmployeePortal role="employee" />} />
-        <Route path="/employee/hr" element={<EmployeePortal role="hr" />} />
-        <Route path="/employee/admin" element={<EmployeePortal role="admin" />} />
-        <Route path="/employee/consultant" element={<EmployeePortal role="consultant" />} />
+        <Route path="/employee/principal-consultant" element={<EmployeePortal role="principal-consultant" />} />
         <Route path="/employee/senior-consultant" element={<EmployeePortal role="senior-consultant" />} />
-        <Route path="/employee/junior-consultant" element={<EmployeePortal role="junior-consultant" />} />
+        <Route path="/employee/consultant" element={<EmployeePortal role="consultant" />} />
+        <Route path="/employee/senior-bi-developer" element={<EmployeePortal role="senior-bi-developer" />} />
+        <Route path="/employee/bi-developer" element={<EmployeePortal role="bi-developer" />} />
 
         {/* Default redirect */}
         <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />

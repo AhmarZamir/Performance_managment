@@ -3,11 +3,11 @@ import { teamService, templateService, submissionService } from '../../services/
 import { Edit, Save, X, Plus, Trash2, FileText } from 'lucide-react';
 
 const ROLES = {
-  manager: 'Manager',
-  team_lead: 'Team Lead',
-  employee: 'Employee',
-  hr: 'HR Manager',
-  admin: 'Administrator'
+  'principal-consultant': 'Principal Consultant',
+  'senior-consultant': 'Senior Consultant',
+  'consultant': 'Consultant',
+  'senior-bi-developer': 'Senior BI Developer',
+  'bi-developer': 'BI Developer'
 };
 
 const FormTemplates = ({ onDataUpdate }) => {
