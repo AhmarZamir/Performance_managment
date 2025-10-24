@@ -21,10 +21,12 @@ const Layout = ({ children }) => {
             {/* Logo/Brand */}
             <div className="flex items-center">
               <Link to="/admin/dashboard" className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <User className="h-5 w-5 text-white" />
-                </div>
-                <span className="text-xl font-bold text-gray-900">Admin Portal</span>
+                <img 
+                  src="/optronix_ai_logo.jpg" 
+                  alt="Optronix AI Logo"
+                  className="h-8 w-8 object-cover rounded"
+                />
+                <span className="text-xl font-bold text-gray-900">Optronix AI Admin</span>
               </Link>
             </div>
 

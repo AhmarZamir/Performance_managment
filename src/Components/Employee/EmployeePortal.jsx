@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EmployeeDashboard from './Dashboard';
-import { teamService, templateService, submissionService } from '../../services/supabaseService'
+import { teamService, templateService } from '../../services/supabaseService';
 import { ArrowLeft, Shield, AlertCircle, Users } from 'lucide-react';
 
 const ROLES = {
@@ -49,7 +49,7 @@ const EmployeePortal = ({ role }) => {
 
     } catch (error) {
       console.error('Error loading portal data:', error);
-      setAccessError('Error loading portal data. Please check if JSON Server is running on port 3001.');
+      setAccessError('Error loading portal data. Please check if Supabase is connected.');
     } finally {
       setLoading(false);
     }
@@ -64,8 +64,13 @@ const EmployeePortal = ({ role }) => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="bg-white p-8 rounded-lg border shadow-sm text-center max-w-md">
           <div className="flex justify-center mb-4">
-            <Shield className="h-12 w-12 text-red-500" />
+            <img 
+              src="/optronix_ai_logo.jpg" 
+              alt="Optronix AI Logo"
+              className="h-16 w-16 object-cover rounded"
+            />
           </div>
+          <Shield className="h-12 w-12 text-red-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h2>
           <p className="text-gray-600 mb-4">{accessError}</p>
           <div className="space-y-3">
@@ -89,12 +94,14 @@ const EmployeePortal = ({ role }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
-                <Users className="h-5 w-5 text-white" />
-              </div>
+              <img 
+                src="/optronix_ai_logo.jpg" 
+                alt="Optronix AI Logo"
+                className="h-8 w-8 object-cover rounded mr-3"
+              />
               <div>
-                <h1 className="text-xl font-bold text-gray-900">Performance Portal</h1>
-                <p className="text-sm text-gray-500">Secure Evaluation System</p>
+                <h1 className="text-xl font-bold text-gray-900">Optronix AI</h1>
+                <p className="text-sm text-gray-500">Performance Evaluation System</p>
               </div>
             </div>
             
@@ -149,8 +156,13 @@ const EmployeePortal = ({ role }) => {
       <footer className="bg-white border-t mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="text-sm text-gray-600 mb-4 md:mb-0">
-              © 2024 Performance Evaluation System
+            <div className="flex items-center mb-4 md:mb-0">
+              <img 
+                src="/optronix_ai_logo.jpg" 
+                alt="Optronix AI Logo"
+                className="h-6 w-6 object-cover rounded mr-2"
+              />
+              <span className="text-sm text-gray-600">Optronix AI Performance System</span>
             </div>
             <div className="text-sm text-gray-500">
               {ROLES[role]} Portal • {employees.length} team members • {templates.length} evaluation forms
