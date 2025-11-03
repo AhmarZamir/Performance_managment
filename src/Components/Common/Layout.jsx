@@ -24,58 +24,20 @@ const Layout = ({ children }) => {
                 <img 
                   src="/optronix_ai_logo.jpg" 
                   alt="Optronix AI Logo"
-                  className="h-8 w-8 object-cover rounded"
+                  className="h-33 w-39 object-cover rounded"
                 />
-                <span className="text-xl font-bold text-gray-900">Optronix AI Admin</span>
+                <span className="text-xl font-bold text-gray-900"> Optronix AI Admin</span>
               </Link>
             </div>
 
             {/* Navigation */}
-            <nav className="hidden md:flex items-center space-x-8">
-              <Link 
-                to="/admin/dashboard" 
-                className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
-              >
-                Dashboard
-              </Link>
-              <Link 
-                to="/admin/team" 
-                className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
-              >
-                Team
-              </Link>
-              <Link 
-                to="/admin/templates" 
-                className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
-              >
-                Templates
-              </Link>
-              <Link 
-                to="/admin/submissions" 
-                className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
-              >
-                Submissions
-              </Link>
-              <Link 
-                to="/admin/portal-links" 
-                className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
-              >
-                Portal Links
-              </Link>
-            </nav>
 
             {/* User Menu */}
             <div className="flex items-center space-x-4">
-              <button className="p-2 text-gray-600 hover:text-gray-900 transition-colors">
-                <Settings className="h-5 w-5" />
-              </button>
-              <button 
-                onClick={handleLogout}
-                className="flex items-center space-x-2 px-3 py-2 text-gray-700 hover:text-red-600 transition-colors"
-              >
-                <LogOut className="h-4 w-4" />
-                <span>Logout</span>
-              </button>
+             
+             
+             
+             
             </div>
           </div>
         </div>

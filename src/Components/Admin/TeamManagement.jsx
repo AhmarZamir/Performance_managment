@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-
-import { teamService, templateService, submissionService } from '../../services/supabaseService'
-import { Plus, Edit, Trash2, Save, X, User, Mail, Building, Briefcase } from 'lucide-react';
+import { teamService, templateService, submissionService, authService } from '../../services/supabaseService';
+import { Plus, Edit, Trash2, Save, X, User, Mail, Building, Briefcase, Key, UserCheck, Eye, EyeOff } from 'lucide-react';
 
 const TeamManagement = ({ onDataUpdate }) => {
   const [employees, setEmployees] = useState([]);
@@ -11,11 +10,14 @@ const TeamManagement = ({ onDataUpdate }) => {
   const [newEmployee, setNewEmployee] = useState({
     name: '',
     email: '',
+    username: '',
+    password: '',
     role: 'senior-consultant',
     department: '',
     position: '',
     join_date: new Date().toISOString().split('T')[0]
   });
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     loadTeamMembers();
@@ -28,38 +30,53 @@ const TeamManagement = ({ onDataUpdate }) => {
       setEmployees(data);
     } catch (error) {
       console.error('Error loading team members:', error);
-      alert('Error loading team members. Please check if JSON Server is running on port 3001.');
+      alert('Error loading team members. Please check if Supabase is connected.');
     } finally {
       setLoading(false);
     }
   };
 
   const handleAddEmployee = async () => {
-    if (!newEmployee.name.trim() || !newEmployee.email.trim()) {
-      alert('Please fill in name and email');
+    if (!newEmployee.name.trim() || !newEmployee.email.trim() || 
+        !newEmployee.username.trim() || !newEmployee.password.trim()) {
+      alert('Please fill in all required fields: name, email, username, and password');
+      return;
+    }
+
+    // Validate password length
+    if (newEmployee.password.length < 4) {
+      alert('Password must be at least 4 characters long');
       return;
     }
 
     try {
-      await teamService.addEmployee(newEmployee);
+      // Use auth service to create employee with credentials
+      await authService.createEmployeeWithAuth(newEmployee);
       await loadTeamMembers();
       setIsAdding(false);
       setNewEmployee({
         name: '',
         email: '',
+        username: '',
+        password: '',
         role: 'senior-consultant',
         department: '',
         position: '',
         join_date: new Date().toISOString().split('T')[0]
       });
+      setShowPassword(false); // Reset password visibility
       
       // Refresh dashboard stats
       if (onDataUpdate) onDataUpdate();
       
-      alert('Team member added successfully!');
+      alert('Team member added successfully with login credentials!');
     } catch (error) {
       console.error('Error adding team member:', error);
-      alert('Error adding team member. Please try again.');
+      if (error.message.includes('unique constraint')) {
+        alert('Error: Username already exists. Please choose a different username.');
+      } else {
+        alert('Error adding team member. Please try again.');
+      }
     }
   };
 
@@ -68,31 +85,50 @@ const TeamManagement = ({ onDataUpdate }) => {
     setNewEmployee({ 
       name: employee.name,
       email: employee.email,
+      username: employee.username || '',
+      password: '', // Don't show existing password for security
       role: employee.role || 'senior-consultant',
       department: employee.department || '',
       position: employee.position || '',
       join_date: employee.join_date || new Date().toISOString().split('T')[0]
     });
+    setShowPassword(false); // Reset password visibility when editing
   };
 
   const handleUpdateEmployee = async () => {
     try {
-      await teamService.updateEmployee(editingEmployee, newEmployee);
+      // Prepare update data (exclude password if empty)
+      const updateData = { ...newEmployee };
+      if (!updateData.password) {
+        delete updateData.password;
+      }
+      
+      if (updateData.password) {
+        // If password is provided, update using auth service
+        await authService.updateEmployeePassword(editingEmployee, updateData.password);
+        delete updateData.password; // Remove password from employee update
+      }
+      
+      // Update employee details
+      await teamService.updateEmployee(editingEmployee, updateData);
       await loadTeamMembers();
       setEditingEmployee(null);
       setNewEmployee({
         name: '',
         email: '',
+        username: '',
+        password: '',
         role: 'senior-consultant',
         department: '',
         position: '',
         join_date: new Date().toISOString().split('T')[0]
       });
+      setShowPassword(false); // Reset password visibility
       
       // Refresh dashboard stats
       if (onDataUpdate) onDataUpdate();
       
-      alert('Team member updated successfully!');
+      alert('Team member updated successfully!' + (updateData.password ? ' Password has been updated.' : ''));
     } catch (error) {
       console.error('Error updating team member:', error);
       alert('Error updating team member. Please try again.');
@@ -100,7 +136,7 @@ const TeamManagement = ({ onDataUpdate }) => {
   };
 
   const handleDeleteEmployee = async (employeeId) => {
-    if (confirm('Are you sure you want to remove this team member?')) {
+    if (confirm('Are you sure you want to remove this team member? This will also delete their login credentials.')) {
       try {
         await teamService.deleteEmployee(employeeId);
         await loadTeamMembers();
@@ -122,11 +158,18 @@ const TeamManagement = ({ onDataUpdate }) => {
     setNewEmployee({
       name: '',
       email: '',
+      username: '',
+      password: '',
       role: 'senior-consultant',
       department: '',
       position: '',
       join_date: new Date().toISOString().split('T')[0]
     });
+    setShowPassword(false); // Reset password visibility
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -134,7 +177,7 @@ const TeamManagement = ({ onDataUpdate }) => {
       <div className="flex justify-between items-center">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">Team Management</h2>
-          <p className="text-gray-600 mt-1">Manage your team members and their details</p>
+          <p className="text-gray-600 mt-1">Manage your team members and their login credentials</p>
         </div>
         <button 
           onClick={() => setIsAdding(true)}
@@ -198,6 +241,55 @@ const TeamManagement = ({ onDataUpdate }) => {
 
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Username *
+              </label>
+              <div className="relative">
+                <UserCheck className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  type="text"
+                  value={newEmployee.username}
+                  onChange={(e) => setNewEmployee(prev => ({ ...prev, username: e.target.value }))}
+                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  placeholder="Enter username for login"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Password {isAdding ? '*' : ''}
+              </label>
+              <div className="relative">
+                <Key className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={newEmployee.password}
+                  onChange={(e) => setNewEmployee(prev => ({ ...prev, password: e.target.value }))}
+                  className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  placeholder={isAdding ? "Set initial password" : "Leave blank to keep current"}
+                />
+                <button
+                  type="button"
+                  onClick={togglePasswordVisibility}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+              {isAdding && (
+                <p className="text-xs text-gray-500 mt-1">Minimum 4 characters required</p>
+              )}
+              {!isAdding && (
+                <p className="text-xs text-gray-500 mt-1">Enter new password only if you want to change it</p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Department
               </label>
               <input
@@ -236,10 +328,6 @@ const TeamManagement = ({ onDataUpdate }) => {
                  <option value="senior-bi-developer">Senior BI Developer</option>
                  <option value="bi-developer">BI Developer</option>
              </select>
-              
-
-              
-              
             </div>
 
             <div>
@@ -289,6 +377,12 @@ const TeamManagement = ({ onDataUpdate }) => {
                       <Mail className="h-3 w-3 mr-1" />
                       {employee.email}
                     </p>
+                    {employee.username && (
+                      <p className="text-xs text-green-600 flex items-center mt-1">
+                        <UserCheck className="h-3 w-3 mr-1" />
+                        Username: {employee.username}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <div className="flex space-x-1">

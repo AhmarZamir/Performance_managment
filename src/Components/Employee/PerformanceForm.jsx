@@ -241,28 +241,10 @@ const PerformanceForm = ({ employee, roleTemplates = [] }) => {
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Employee Info */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-gradient-to-br from-gray-50 to-gray-100/50 rounded-2xl border border-gray-200">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Employee Name</label>
-            <input
-              type="text"
-              value={formData.employeeName}
-              readOnly
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100/80 transition-colors"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
-            <input
-              type="email"
-              value={formData.employeeEmail}
-              readOnly
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100/80 transition-colors"
-            />
-          </div>
-        </div>
-
-        {/* Evaluation Criteria */}
+        
+            
+       
+                {/* Evaluation Criteria */}
         <div className="space-y-6">
           <div className="flex items-center space-x-3 mb-6">
             <Star className="h-6 w-6 text-blue-600" />

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EmployeeDashboard from './Dashboard';
+import EmployeeLogin from './EmployeeLogin';
 import { teamService, templateService } from '../../services/supabaseService';
-import { ArrowLeft, Shield, AlertCircle, Users } from 'lucide-react';
+import { ArrowLeft, Shield, AlertCircle, Users, LogOut } from 'lucide-react';
 
 const ROLES = {
   'principal-consultant': 'Principal Consultant',
@@ -12,13 +13,15 @@ const ROLES = {
   'bi-developer': 'BI Developer'
 };
 
-const EmployeePortal = ({ role }) => {
+
+const EmployeePortal = ({ role } ) => {
   const [currentEmployee, setCurrentEmployee] = useState(null);
   const [employees, setEmployees] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [accessError, setAccessError] = useState('');
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const navigate =  useNavigate();
 
   useEffect(() => {
     validateAccess();
@@ -55,9 +58,37 @@ const EmployeePortal = ({ role }) => {
     }
   };
 
+  const handleLoginSuccess = (employee) => {
+    // Verify that the logged-in employee belongs to the correct role
+    if (employee.role !== role) {
+      setAccessError(`Access denied. You are registered as ${ROLES[employee.role]}, not ${ROLES[role]}.`);
+      return;
+    }
+    
+    setCurrentEmployee(employee);
+    setIsAuthenticated(true);
+    setAccessError('');
+  };
+
   const handleBackToAdmin = () => {
     navigate('/admin/dashboard');
   };
+
+  const handleLogout = () => {
+    setCurrentEmployee(null);
+    setIsAuthenticated(false);
+    setAccessError('');
+  };
+
+  // Show login if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <EmployeeLogin 
+        onLoginSuccess={handleLoginSuccess}
+        onBackToAdmin={handleBackToAdmin}
+      />
+    );
+  }
 
   if (accessError) {
     return (
@@ -67,16 +98,19 @@ const EmployeePortal = ({ role }) => {
             <img 
               src="/optronix_ai_logo.jpg" 
               alt="Optronix AI Logo"
-              className="h-16 w-16 object-cover rounded"
+              className="h-6 w-36 object-cover rounded"
             />
           </div>
-          <Shield className="h-12 w-12 text-red-500 mx-auto mb-4" />
+          <Shield className="h-22 w-22 text-red-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h2>
           <p className="text-gray-600 mb-4">{accessError}</p>
           <div className="space-y-3">
+            
+            
+  
             <button
               onClick={handleBackToAdmin}
-              className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 flex items-center justify-center transition-colors"
+              className="w-full bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 flex items-center justify-center transition-colors"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Admin Dashboard
@@ -97,11 +131,13 @@ const EmployeePortal = ({ role }) => {
               <img 
                 src="/optronix_ai_logo.jpg" 
                 alt="Optronix AI Logo"
-                className="h-8 w-8 object-cover rounded mr-3"
+                className="h-6 w-36 object-cover rounded mr-3"
               />
               <div>
                 <h1 className="text-xl font-bold text-gray-900">Optronix AI</h1>
-                <p className="text-sm text-gray-500">Performance Evaluation System</p>
+                <p className="text-sm text-gray-500">
+                  Welcome, {currentEmployee?.name}
+                </p>
               </div>
             </div>
             
@@ -111,7 +147,8 @@ const EmployeePortal = ({ role }) => {
               </span>
               <div className="text-sm text-gray-500">
                 {employees.length} members • {templates.length} forms
-              </div>
+              </div>             
+              
             </div>
           </div>
         </div>
@@ -120,12 +157,13 @@ const EmployeePortal = ({ role }) => {
       {/* Security Notice */}
       <div className="bg-blue-50 border-b border-blue-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="py-3 flex items-center justify-center">
-            <AlertCircle className="h-4 w-4 text-blue-600 mr-2" />
-            <p className="text-sm text-blue-700">
-              Secure {ROLES[role]} Portal - Access restricted to {ROLES[role]} members only
-            </p>
-          </div>
+          {/* <div className="py-3 flex items-center justify-center"> */}
+            {/* <AlertCircle className="h-4 w-4 text-blue-600 mr-2" /> */}
+            {/* <p className="text-sm text-blue-700"> */}
+              {/* Secure {ROLES[role]} Portal - Welcome {currentEmployee?.name} */}
+            {/* </p> */}
+          {/* </div> */}
+          
         </div>
       </div>
 
@@ -148,6 +186,7 @@ const EmployeePortal = ({ role }) => {
             forcedRole={role}
             portalEmployees={employees}
             portalTemplates={templates}
+            onLogout={handleLogout}
           />
         </main>
       )}
@@ -160,7 +199,7 @@ const EmployeePortal = ({ role }) => {
               <img 
                 src="/optronix_ai_logo.jpg" 
                 alt="Optronix AI Logo"
-                className="h-6 w-6 object-cover rounded mr-2"
+                className="h-26 w-36 object-cover rounded mr-2"
               />
               <span className="text-sm text-gray-600">Optronix AI Performance System</span>
             </div>

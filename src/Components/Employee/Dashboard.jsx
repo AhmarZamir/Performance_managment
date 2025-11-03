@@ -233,13 +233,9 @@ const EmployeeDashboard = ({
               </div>
             </div>
           </div>
-          <div className="flex space-x-3">
-            <button
-              onClick={() => setCurrentEmployee(null)}
-              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              Switch Profile
-            </button>
+          <div className="flex space-x-3">         
+
+         
             {!isRoleLocked && (
               <button
                 onClick={() => {
