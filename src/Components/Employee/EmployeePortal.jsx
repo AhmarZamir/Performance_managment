@@ -133,21 +133,22 @@ const EmployeePortal = ({ role } ) => {
                 alt="Optronix AI Logo"
                 className="h-6 w-36 object-cover rounded mr-3"
               />
+             
+
+            </div>
+            
+            <div className="flex items-center space-x-4">
               <div>
                 <h1 className="text-xl font-bold text-gray-900">Optronix AI</h1>
                 <p className="text-sm text-gray-500">
                   Welcome, {currentEmployee?.name}
                 </p>
               </div>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 border border-blue-200">
-                {ROLES[role]} Portal
-              </span>
-              <div className="text-sm text-gray-500">
-                {employees.length} members • {templates.length} forms
-              </div>             
+
+
+              {/* <div className="text-sm text-gray-500"> */}
+                {/* {employees.length} members • {templates.length} forms */}
+              {/* </div>              */}
               
             </div>
           </div>
@@ -163,7 +164,7 @@ const EmployeePortal = ({ role } ) => {
               {/* Secure {ROLES[role]} Portal - Welcome {currentEmployee?.name} */}
             {/* </p> */}
           {/* </div> */}
-          
+
         </div>
       </div>
 

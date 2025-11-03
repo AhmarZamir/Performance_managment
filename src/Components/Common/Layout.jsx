@@ -26,14 +26,16 @@ const Layout = ({ children }) => {
                   alt="Optronix AI Logo"
                   className="h-33 w-39 object-cover rounded"
                 />
-                <span className="text-xl font-bold text-gray-900"> Optronix AI Admin</span>
+               
               </Link>
             </div>
 
             {/* Navigation */}
+           
 
             {/* User Menu */}
             <div className="flex items-center space-x-4">
+                <span className="text-xl font-bold text-gray-900"> Optronix AI</span>
              
              
              
