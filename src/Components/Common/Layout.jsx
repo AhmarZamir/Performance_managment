@@ -24,7 +24,7 @@ const Layout = ({ children }) => {
                 <img 
                   src="/optronix_ai_logo.jpg" 
                   alt="Optronix AI Logo"
-                  className="h-33 w-39 object-cover rounded"
+                  className="h-6 w-36 object-cover rounded"
                 />
                
               </Link>

@@ -13,20 +13,47 @@ const ROLES = {
   'bi-developer': 'BI Developer'
 };
 
-
-const EmployeePortal = ({ role } ) => {
+const EmployeePortal = ({ role }) => {
   const [currentEmployee, setCurrentEmployee] = useState(null);
   const [employees, setEmployees] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [accessError, setAccessError] = useState('');
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const navigate =  useNavigate();
+  const navigate = useNavigate();
 
+  // Check for existing session on component mount
   useEffect(() => {
+    checkExistingSession();
     validateAccess();
     loadPortalData();
   }, [role]);
+
+  // Check if user already has a valid session
+  const checkExistingSession = () => {
+    try {
+      const savedSession = localStorage.getItem('employeeSession');
+      if (savedSession) {
+        const sessionData = JSON.parse(savedSession);
+        const { employee, timestamp, role: savedRole } = sessionData;
+        
+        // Check if session is still valid (less than 24 hours old) and role matches
+        const isSessionValid = Date.now() - timestamp < 24 * 60 * 60 * 1000; // 24 hours
+        const isRoleMatch = savedRole === role;
+        
+        if (isSessionValid && isRoleMatch && employee) {
+          setCurrentEmployee(employee);
+          setIsAuthenticated(true);
+        } else {
+          // Clear invalid session
+          localStorage.removeItem('employeeSession');
+        }
+      }
+    } catch (error) {
+      console.error('Error checking session:', error);
+      localStorage.removeItem('employeeSession');
+    }
+  };
 
   const validateAccess = () => {
     if (!ROLES[role]) {
@@ -65,9 +92,18 @@ const EmployeePortal = ({ role } ) => {
       return;
     }
     
+    // Set employee data and authentication state
     setCurrentEmployee(employee);
     setIsAuthenticated(true);
     setAccessError('');
+    
+    // Save session to localStorage for persistence
+    const sessionData = {
+      employee: employee,
+      timestamp: Date.now(),
+      role: role
+    };
+    localStorage.setItem('employeeSession', JSON.stringify(sessionData));
   };
 
   const handleBackToAdmin = () => {
@@ -75,9 +111,20 @@ const EmployeePortal = ({ role } ) => {
   };
 
   const handleLogout = () => {
+    // Clear React state
     setCurrentEmployee(null);
     setIsAuthenticated(false);
     setAccessError('');
+    
+    // Clear session storage
+    localStorage.removeItem('employeeSession');
+    sessionStorage.removeItem('employeeSession');
+    
+    // Optional: Clear any other related storage
+    // localStorage.removeItem('employeeFormData');
+    // localStorage.removeItem('employeePreferences');
+    
+    console.log('Employee logged out successfully');
   };
 
   // Show login if not authenticated
@@ -101,13 +148,17 @@ const EmployeePortal = ({ role } ) => {
               className="h-6 w-36 object-cover rounded"
             />
           </div>
-          <Shield className="h-22 w-22 text-red-500 mx-auto mb-4" />
+          <Shield className="h-12 w-12 text-red-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h2>
           <p className="text-gray-600 mb-4">{accessError}</p>
           <div className="space-y-3">
-            
-            
-  
+            <button
+              onClick={handleLogout}
+              className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 flex items-center justify-center transition-colors"
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Back to Login
+            </button>
             <button
               onClick={handleBackToAdmin}
               className="w-full bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 flex items-center justify-center transition-colors"
@@ -133,23 +184,29 @@ const EmployeePortal = ({ role } ) => {
                 alt="Optronix AI Logo"
                 className="h-6 w-36 object-cover rounded mr-3"
               />
-             
-
             </div>
             
-            <div className="flex items-center space-x-4">
-              <div>
+            <div className="flex items-center space-x-6">
+              <div className="text-right">
                 <h1 className="text-xl font-bold text-gray-900">Optronix AI</h1>
                 <p className="text-sm text-gray-500">
                   Welcome, {currentEmployee?.name}
                 </p>
               </div>
-
-
-              {/* <div className="text-sm text-gray-500"> */}
-                {/* {employees.length} members • {templates.length} forms */}
-              {/* </div>              */}
               
+              <div className="flex items-center space-x-4">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                  {ROLES[role]}
+                </span>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                  title="Logout"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Logout</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -158,13 +215,17 @@ const EmployeePortal = ({ role } ) => {
       {/* Security Notice */}
       <div className="bg-blue-50 border-b border-blue-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* <div className="py-3 flex items-center justify-center"> */}
-            {/* <AlertCircle className="h-4 w-4 text-blue-600 mr-2" /> */}
-            {/* <p className="text-sm text-blue-700"> */}
-              {/* Secure {ROLES[role]} Portal - Welcome {currentEmployee?.name} */}
-            {/* </p> */}
-          {/* </div> */}
-
+          <div className="py-3 flex items-center justify-between">
+            <div className="flex items-center">
+              <AlertCircle className="h-4 w-4 text-blue-600 mr-2" />
+              <p className="text-sm text-blue-700">
+                Secure {ROLES[role]} Portal - Welcome {currentEmployee?.name}
+              </p>
+            </div>
+            <div className="text-xs text-blue-600">
+              Session active • Role: {ROLES[role]}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -200,7 +261,7 @@ const EmployeePortal = ({ role } ) => {
               <img 
                 src="/optronix_ai_logo.jpg" 
                 alt="Optronix AI Logo"
-                className="h-26 w-36 object-cover rounded mr-2"
+                className="h-6 w-36 object-cover rounded mr-2"
               />
               <span className="text-sm text-gray-600">Optronix AI Performance System</span>
             </div>
